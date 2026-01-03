@@ -22,7 +22,7 @@
         .channel-logo { height: 28px; width: auto; margin-left: 10px; flex-shrink: 0; }
         #url-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1050; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; }
-        @media (max-aspect-ratio: 3/4) {
+        @media (max-aspect-ratio: 1.0) {
             .main-row { flex-direction: column; }
             .player-col { height: 40vh; order: 1; }
             .sidebar { width: 100%; max-width: 100%; min-width: 0; height: calc(100% - 40vh); order: 2; }
@@ -294,7 +294,7 @@
 	    if (!matchMedia('(pointer: coarse)').matches) return false;
 	    if (matchMedia('(hover: hover)').matches) return false;
 	    const ratio = Math.min(screen.width, screen.height) / Math.max(screen.width, screen.height);
-	    return ratio < 0.8 && window.innerHeight > window.innerWidth;
+	    return ratio < 1.0 && window.innerHeight > window.innerWidth;
 	}
 
 	document.addEventListener('fullscreenchange', () => {
