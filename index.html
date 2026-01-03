@@ -77,6 +77,7 @@ body { -webkit-font-smoothing: antialiased; }
                 <div class="p-3 border-bottom d-flex gap-2">
                     <input type="text" id="search" class="form-control" placeholder="Search channels..." onkeyup="debouncedFilterChannels()">
                     <button class="btn btn-outline-secondary" onclick="scrollToActive()" title="Center current channel">⌖</button>
+                    <button class="btn btn-outline-secondary" onclick="shareChannel()" title="Share current channel">↗️</button>
                 </div>
                 <ul id="channel-list" class="list-group channel-list">
                     <!-- Channels populated here -->
@@ -99,24 +100,26 @@ body { -webkit-font-smoothing: antialiased; }
             </div>
         </div>
     </div>
+    <div id="notification" class="position-fixed top-0 start-50 translate-middle-x bg-success text-white p-3 rounded shadow" style="display: none; z-index: 1060;">Copied channel URL to clipboard</div>
     <script>
         const defaultM3uUrl = 'https://iptv-org.github.io/iptv/index.m3u'; // Set your default here or leave empty
         const player = videojs('video', {
             liveui: true,
             fluid: true,
-	    aspectRatio: '16:9',
+    aspectRatio: '16:9',
             html5: { vhs: { overrideNative: true } },
             autoplay: true,
             muted: true,
-	    controlBar: { volumePanel: true, qualityMenuButton: true }
-	});
-	player.qualityMenu();
+    controlBar: { volumePanel: true, qualityMenuButton: true }
+});
+player.qualityMenu();
         player.ready(function() {
-		player.play().catch(() => {});
-//		setTimeout(() => { player.muted(false); }, 5000); // does not work due to browser restrictions
-	});
+player.play().catch(() => {});
+// setTimeout(() => { player.muted(false); }, 5000); // does not work due to browser restrictions
+});
         let channels = [];
         let currentItem = null;
+        let currentIndex = -1;
         async function parseM3U(content) {
             const lines = content.split('\n');
             const parsed = [];
@@ -171,9 +174,9 @@ body { -webkit-font-smoothing: antialiased; }
                 const li = document.querySelectorAll('.list-group-item')[channelIndex];
                 if (li) {
                     playChannel(channels[channelIndex].url, li, channels[channelIndex].name, channelIndex);
-		    await new Promise(resolve => requestAnimationFrame(resolve));
-		    await new Promise(resolve => requestAnimationFrame(resolve));
-		    requestAnimationFrame(() => { scrollToActive(); });
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    requestAnimationFrame(() => { scrollToActive(); });
                 }
             } catch (e) {
                 alert('Error: ' + e.message);
@@ -207,6 +210,7 @@ body { -webkit-font-smoothing: antialiased; }
             if (currentItem) currentItem.classList.remove('active');
             el.classList.add('active');
             currentItem = el;
+            currentIndex = idx;
             document.getElementById('current-channel').textContent = `${idx + 1}. ${name}`;
             player.src({ type: 'application/x-mpegURL', src: url });
             player.volume(1);
@@ -256,6 +260,30 @@ function showUrlModal() {
                 document.getElementById('initial-form').style.display = 'none !important';
                 document.getElementById('app').style.display = 'flex';
             }
+        }
+        function shareChannel() {
+            if (currentIndex === -1) return;
+            const channelNum = currentIndex + 1;
+            const baseUrl = window.location.href.split('?')[0];
+            const shareUrl = `${baseUrl}?channel=${channelNum}`;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Share Channel',
+                    text: 'Check out this channel:',
+                    url: shareUrl
+                }).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    showNotification();
+                }).catch(console.error);
+            }
+        }
+        function showNotification() {
+            const notif = document.getElementById('notification');
+            notif.style.display = 'block';
+            setTimeout(() => {
+                notif.style.display = 'none';
+            }, 3000);
         }
         // Init
         document.getElementById('initial-upload').addEventListener('change', e => {
