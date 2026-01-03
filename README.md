@@ -12,7 +12,7 @@ Why all this nonsense with the other projects?
 
 ## Demo
 
-[https://ballerburg9005.github.io/M3U-IPTV-HTML-SUCKLESS/](https://ballerburg9005.github.io/M3U-IPTV-HTML-SUCKLESS/)
+[https://ballerburg9005.github.io/M3U-IPTV-HTML-SUCKLESS/?c=2362](https://ballerburg9005.github.io/M3U-IPTV-HTML-SUCKLESS/?c=2362)
 
 
 ## Features
@@ -25,6 +25,7 @@ Why all this nonsense with the other projects?
 * search bar
 * subtitles, audio tracks, quality selection, skipback, normal video controls
 * "find back" button to scroll channel list to current channel
+* use ?c=123 or ?channel=123 to select channel via URL
 
 
 ## Screenshots (PC & Mobile)
