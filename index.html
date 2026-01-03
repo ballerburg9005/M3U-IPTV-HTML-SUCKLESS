@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPTV Player</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://vjs.zencdn.net/8.6.1/video-js.min.css" rel="stylesheet">
+    <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
+    <script src="https://unpkg.com/videojs-contrib-quality-levels@4.1.0/dist/videojs-contrib-quality-levels.min.js"></script>
+    <script src="https://unpkg.com/videojs-hls-quality-selector@1.1.1/dist/videojs-hls-quality-selector.min.js"></script>
+    <style>
+        html, body { height: 100%; margin: 0; overflow: hidden; width: 100%; }
+        body { display: flex; flex-direction: column; background-color: #f8f9fa; }
+        .main-row { flex: 1; display: flex; overflow: hidden; }
+        .player-col { background-color: black; flex: 1; order: 2; position: relative; }
+        .player-container { position: absolute; inset: 0; }
+        .video-js { width: 100% !important; height: 100% !important; }
+        .sidebar { background-color: #fff; display: flex; flex-direction: column; resize: horizontal; overflow: hidden; min-width: 200px; max-width: 50vw; width: 25%; order: 1; }
+        .channel-list { flex: 1; overflow-y: auto; overflow-x: hidden; }
+        .list-group-item { border-radius: 0; border: none; border-bottom: 1px solid #dee2e6; padding: 0.75rem 1.25rem; white-space: nowrap; }
+        .channel-text { flex: 1; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+        .channel-logo { height: 28px; width: auto; margin-left: 10px; flex-shrink: 0; }
+        #url-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1050; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; }
+        @media (max-aspect-ratio: 3/4) {
+            .main-row { flex-direction: column; }
+            .player-col { height: 40vh; order: 1; }
+            .sidebar { width: 100%; max-width: 100%; min-width: 0; height: calc(100% - 40vh); resize: vertical; order: 2; }
+            .list-group-item { font-size: 1.2rem; padding: 1rem; }
+            .sidebar { resize: none; }
+        }
+        @media (orientation: landscape) and (max-height: 600px) {
+            .sidebar { width: 50%; min-width: 200px; }
+	    header { padding: 0.5rem 1rem; }
+	    .video-js { height: 80% !important;}
+            header h5 { font-size: 1rem; }
+            .current-channel-display { font-size: 1rem; }
+        }
+        @media (pointer: coarse) {
+            .channel-list { -webkit-overflow-scrolling: touch; }
+	}
+	.video-force-landscape {
+	    position: fixed;
+	    inset: 0;
+	    width: 100vh;
+	    height: 100vw;
+	    transform: rotate(90deg) translateY(-100%);
+	    transform-origin: top left;
+	    background: black;
+	}
+
+    </style>
+</head>
+<body>
+    <div id="initial-form" class="d-flex flex-column justify-content-center align-items-center vh-100" style="display: none !important;">
+        <h1 style="font-size: 3rem; margin-bottom: 2rem;"><a href="https://example.com" style="color: inherit; text-decoration: none;">M3U-IPTV HTML SUCKLESS</a></h1>
+        <div class="text-center w-75">
+            <input type="file" id="initial-upload" accept=".m3u,.m3u8" class="form-control form-control-lg mb-3">
+            <input type="text" id="initial-url" placeholder="Enter M3U URL" class="form-control form-control-lg mb-3">
+            <button class="btn btn-primary btn-lg" onclick="loadFromInitialUrl()">Load URL</button>
+            <p class="mt-3">Or set a default URL in the code.</p>
+        </div>
+    </div>
+
+    <div id="app" style="display: none; flex-direction: column; height: 100vh;">
+        <header class="bg-light border-bottom py-2 px-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span id="current-channel" class="current-channel-display text-secondary">—</span>
+            <h5 class="mb-0 text-center flex-grow-1">M3U-IPTV HTML SUCKLESS</h5>
+            <div class="d-flex align-items-center gap-2">
+                <input type="file" id="mini-upload" accept=".m3u,.m3u8" class="form-control form-control-sm">
+                <button class="btn btn-outline-primary btn-sm" onclick="showUrlModal()">URL...</button>
+            </div>
+        </header>
+
+        <div class="main-row">
+            <div class="sidebar">
+                <div class="p-3 border-bottom d-flex gap-2">
+                    <input type="text" id="search" class="form-control" placeholder="Search channels..." onkeyup="debouncedFilterChannels()">
+                    <button class="btn btn-outline-secondary" onclick="scrollToActive()" title="Center current channel">⌖</button>
+                </div>
+                <ul id="channel-list" class="list-group channel-list">
+                    <!-- Channels populated here -->
+                </ul>
+            </div>
+
+            <div class="player-col">
+                <div class="player-container">
+                    <video id="video" class="video-js vjs-big-play-centered" controls preload="auto" playsinline></video>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="url-modal">
+        <div class="modal-content">
+            <h5 class="mb-3">Enter M3U URL</h5>
+            <input type="text" id="modal-url" placeholder="https://example.com/playlist.m3u" class="form-control mb-3">
+            <div class="d-flex justify-content-end gap-2">
+                <button class="btn btn-secondary" onclick="hideUrlModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="loadFromModalUrl()">Load</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const defaultM3uUrl = 'https://ballerburg.us.to/TV/channels.m3u'; // Set your default here or leave empty
+
+        const player = videojs('video', {
+            liveui: true,
+            fluid: true,
+            html5: {
+                vhs: {
+                    overrideNative: true
+                }
+            },
+            autoplay: true,
+            muted: false
+        });
+
+        player.ready(function() {
+            player.hlsQualitySelector({ displayCurrentQuality: true });
+        });
+
+        let channels = [];
+        let currentItem = null;
+
+        async function parseM3U(content) {
+            const lines = content.split('\n');
+            const parsed = [];
+            let info = '';
+            for (let line of lines) {
+                line = line.trim();
+                if (line.startsWith('#EXTINF:')) {
+                    info = line;
+                } else if (line && !line.startsWith('#') && info) {
+                    const matches = info.match(/#EXTINF:-?\d+(.*),(.*)/);
+                    const attrs = matches ? matches[1].trim() : '';
+                    const name = matches ? matches[2].trim() : 'Unnamed Channel';
+                    let logo = '';
+                    const logoMatch = attrs.match(/tvg-logo=["']([^"']+)["']/);
+                    if (logoMatch) logo = logoMatch[1];
+                    parsed.push({ name, url: line, logo });
+                    info = '';
+                }
+            }
+            return parsed;
+        }
+
+        async function loadM3U(source) {
+            try {
+                let content;
+                if (typeof source === 'string') {
+                    const res = await fetch(source);
+                    if (!res.ok) throw new Error('Fetch failed');
+                    content = await res.text();
+                } else {
+                    content = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = e => resolve(e.target.result);
+                        reader.onerror = reject;
+                        reader.readAsText(source);
+                    });
+                }
+                channels = await parseM3U(content);
+                if (channels.length === 0) {
+                    alert('No channels found.');
+                    return;
+                }
+                renderChannels();
+                const firstLi = document.querySelector('.list-group-item');
+                if (firstLi) playChannel(channels[0].url, firstLi, channels[0].name, 0);
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        }
+
+        function renderChannels() {
+            const list = document.getElementById('channel-list');
+            list.innerHTML = '';
+            channels.forEach((ch, i) => {
+                const li = document.createElement('li');
+                li.className = `list-group-item list-group-item-action ${i === 0 ? 'active' : ''}`;
+                li.onclick = () => playChannel(ch.url, li, ch.name, i);
+
+                const span = document.createElement('span');
+                span.className = 'channel-text';
+                span.textContent = `${i + 1}. ${ch.name}`;
+                span.title = ch.name; // Static tooltip – no JS overhead
+                li.appendChild(span);
+
+                if (ch.logo) {
+                    const img = document.createElement('img');
+                    img.src = ch.logo;
+                    img.alt = '';
+                    img.className = 'channel-logo';
+                    img.loading = 'lazy';
+                    img.onerror = () => img.remove();
+                    li.appendChild(img);
+                }
+
+                list.appendChild(li);
+            });
+        }
+
+        function playChannel(url, el, name, idx) {
+            if (currentItem) currentItem.classList.remove('active');
+            el.classList.add('active');
+            currentItem = el;
+            document.getElementById('current-channel').textContent = `${idx + 1}. ${name}`;
+
+            player.src({ type: 'application/x-mpegURL', src: url });
+            player.muted(false);
+            player.volume(1);
+            player.play().catch(() => {});
+        }
+
+        function filterChannels() {
+            const val = document.getElementById('search').value.toLowerCase();
+            document.querySelectorAll('.list-group-item').forEach(item => {
+                const text = item.querySelector('.channel-text').textContent.toLowerCase();
+                item.style.display = text.includes(val) ? '' : 'none';
+            });
+        }
+
+        const debouncedFilterChannels = debounce(filterChannels, 300);
+
+        function debounce(fn, delay) {
+            let t;
+            return () => {
+                clearTimeout(t);
+                t = setTimeout(fn, delay);
+            };
+        }
+
+        function scrollToActive() {
+            if (currentItem) {
+                const list = document.querySelector('.channel-list');
+                list.scrollTop = currentItem.offsetTop - list.offsetHeight / 2 + currentItem.offsetHeight / 2;
+            }
+        }
+
+        function showUrlModal() {
+            document.getElementById('url-modal').style.display = 'flex';
+            document.getElementById('modal-url').focus();
+        }
+
+        function hideUrlModal() {
+            document.getElementById('url-modal').style.display = 'none';
+            document.getElementById('modal-url').value = '';
+        }
+
+        function loadFromModalUrl() {
+            const url = document.getElementById('modal-url').value.trim();
+            if (url) {
+                loadM3U(url);
+                hideUrlModal();
+            }
+        }
+
+        function loadFromInitialUrl() {
+            const url = document.getElementById('initial-url').value.trim();
+            if (url) {
+                loadM3U(url);
+                document.getElementById('initial-form').style.display = 'none !important';
+                document.getElementById('app').style.display = 'flex';
+            }
+        }
+
+        // Init
+        document.getElementById('initial-upload').addEventListener('change', e => {
+            if (e.target.files[0]) {
+                loadM3U(e.target.files[0]);
+                document.getElementById('initial-form').style.display = 'none !important';
+                document.getElementById('app').style.display = 'flex';
+            }
+        });
+
+        document.getElementById('mini-upload').addEventListener('change', e => {
+            if (e.target.files[0]) loadM3U(e.target.files[0]);
+        });
+
+        if (defaultM3uUrl) {
+            loadM3U(defaultM3uUrl);
+            document.getElementById('app').style.display = 'flex';
+            document.getElementById('initial-form').style.display = 'none !important';
+        } else {
+            document.getElementById('initial-form').style.display = 'flex';
+            document.getElementById('app').style.display = 'none';
+	}
+
+	function isMobileTallScreen() {
+	    // 1. Coarse pointer → touch-first device
+	    if (!matchMedia('(pointer: coarse)').matches) return false;
+
+	    // 2. No hover → not desktop
+	    if (matchMedia('(hover: hover)').matches) return false;
+
+	    // 3. Physical aspect strongly portrait
+	    const w = Math.min(screen.width, screen.height);
+	    const h = Math.max(screen.width, screen.height);
+	    if (h / w < 1.25) return false;
+
+	    // 4. Viewport currently tall
+	    if (window.innerHeight <= window.innerWidth) return false;
+
+	    return true;
+	}
+	document.addEventListener('fullscreenchange', () => {
+	    if (!document.fullscreenElement) {
+		video.classList.remove('video-force-landscape');
+		return;
+	    }
+
+	    if (isMobileTallScreen()) {
+		video.classList.add('video-force-landscape');
+	    }
+	});
+    </script>
+</body>
+</html>
