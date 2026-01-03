@@ -10,6 +10,7 @@ Put this player on *any* webserver, supply your playlist and it just plays *inst
 
 Why all this nonsense with the other projects?
 
+
 ## Features
 
 * pure HTML/JS single file 300 lines of code
@@ -19,8 +20,24 @@ Why all this nonsense with the other projects?
 * rotates fullscreen video to widescreen on mobile even if rotation locked via CSS (Firefox only)
 * search bar
 * subtitles, audio tracks, quality selection, skipback, normal video controls
+* "find back" button to scroll channel list to current channel
 
 
 ## Screenshots (PC & Mobile)
 
 ![Image](https://github.com/user-attachments/assets/fc28bc63-f4c6-4a1d-a9d6-78470f3831db)
+
+
+## Known Issues
+
+* The manual control for qualilty selection went missing.
+* fullscreen rotation hack for locked rotation ugly on Chrome and no interest to test & implement
+* "find back" button doesn't always center the channel, sometimes slightly off screen
+* moving the mouse causes massive CPU usage with 1000Hz mouse, makes interface feel sluggish (pls fix, too lazy)
+
+
+## Development
+
+Paste code into Grok Expert and fix it, then test if all features mentioned in the list still work right and do PR.
+
+I just made this project today and it just works for me. So no real interest do do anything more at this point if no one else uses it.
