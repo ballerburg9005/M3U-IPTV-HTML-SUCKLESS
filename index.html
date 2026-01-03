@@ -233,14 +233,15 @@
             };
         }
 
-        function scrollToActive() {
-            if (currentItem) {
-                const list = document.querySelector('.channel-list');
-                list.scrollTop = currentItem.offsetTop - list.offsetHeight / 2 + currentItem.offsetHeight / 2;
-            }
-        }
+	function scrollToActive() {
+	    if (!currentItem) return;
+	    const list = document.querySelector('.channel-list');
+	    const listRect = list.getBoundingClientRect();
+	    const itemRect = currentItem.getBoundingClientRect();
+	    list.scrollTop += (itemRect.top + itemRect.height / 2) - (listRect.top + listRect.height / 2);
+	}
 
-        function showUrlModal() {
+	function showUrlModal() {
             document.getElementById('url-modal').style.display = 'flex';
             document.getElementById('modal-url').focus();
         }
@@ -290,31 +291,15 @@
 	}
 
 	function isMobileTallScreen() {
-	    // 1. Coarse pointer → touch-first device
 	    if (!matchMedia('(pointer: coarse)').matches) return false;
-
-	    // 2. No hover → not desktop
 	    if (matchMedia('(hover: hover)').matches) return false;
-
-	    // 3. Physical aspect strongly portrait
-	    const w = Math.min(screen.width, screen.height);
-	    const h = Math.max(screen.width, screen.height);
-	    if (h / w < 1.25) return false;
-
-	    // 4. Viewport currently tall
-	    if (window.innerHeight <= window.innerWidth) return false;
-
-	    return true;
+	    const ratio = Math.min(screen.width, screen.height) / Math.max(screen.width, screen.height);
+	    return ratio < 0.75 && window.innerHeight > window.innerWidth;
 	}
-	document.addEventListener('fullscreenchange', () => {
-	    if (!document.fullscreenElement) {
-		video.classList.remove('video-force-landscape');
-		return;
-	    }
 
-	    if (isMobileTallScreen()) {
-		video.classList.add('video-force-landscape');
-	    }
+	document.addEventListener('fullscreenchange', () => {
+	    if (!document.fullscreenElement) { video.classList.remove('video-force-landscape'); return; }
+	    if (isMobileTallScreen()) { video.classList.add('video-force-landscape'); }
 	});
     </script>
 </body>
