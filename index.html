@@ -104,15 +104,17 @@ body { -webkit-font-smoothing: antialiased; }
         const player = videojs('video', {
             liveui: true,
             fluid: true,
-    aspectRatio: '16:9',
+	    aspectRatio: '16:9',
             html5: { vhs: { overrideNative: true } },
             autoplay: true,
-            muted: false,
-  controlBar: { volumePanel: true, qualityMenuButton: true }
-});
-player.qualityMenu();
+            muted: true,
+	    controlBar: { volumePanel: true, qualityMenuButton: true }
+	});
+	player.qualityMenu();
         player.ready(function() {
-        });
+		player.play().catch(() => {});
+//		setTimeout(() => { player.muted(false); }, 5000); // does not work due to browser restrictions
+	});
         let channels = [];
         let currentItem = null;
         async function parseM3U(content) {
@@ -169,6 +171,9 @@ player.qualityMenu();
                 const li = document.querySelectorAll('.list-group-item')[channelIndex];
                 if (li) {
                     playChannel(channels[channelIndex].url, li, channels[channelIndex].name, channelIndex);
+		    await new Promise(resolve => requestAnimationFrame(resolve));
+		    await new Promise(resolve => requestAnimationFrame(resolve));
+		    requestAnimationFrame(() => { scrollToActive(); });
                 }
             } catch (e) {
                 alert('Error: ' + e.message);
@@ -179,7 +184,7 @@ player.qualityMenu();
             list.innerHTML = '';
             channels.forEach((ch, i) => {
                 const li = document.createElement('li');
-                li.className = `list-group-item list-group-item-action ${i === 0 ? 'active' : ''}`;
+                li.className = 'list-group-item list-group-item-action';
                 li.onclick = () => playChannel(ch.url, li, ch.name, i);
                 const span = document.createElement('span');
                 span.className = 'channel-text';
@@ -204,7 +209,6 @@ player.qualityMenu();
             currentItem = el;
             document.getElementById('current-channel').textContent = `${idx + 1}. ${name}`;
             player.src({ type: 'application/x-mpegURL', src: url });
-            player.muted(false);
             player.volume(1);
             player.play().catch(() => {});
         }
