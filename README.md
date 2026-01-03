@@ -37,7 +37,7 @@ Why all this nonsense with the other projects?
 * The manual control for qualilty selection went missing.
 * fullscreen rotation hack for locked rotation ugly on Chrome and no interest to test & implement
 * "find back" button doesn't always center the channel, sometimes slightly off screen
-* moving the mouse causes massive CPU usage with 1000Hz mouse, makes interface feel sluggish (pls fix, too lazy)
+* on PC moving the mouse causes moderate (Firefox) to massive (Chrome) CPU usage with 1000Hz mouse, makes interface feel sluggish for Chrome (pls fix, too lazy)
 * the tallscreen threshold should be 3:4 but it might be wrong (can't be bothered to check, might be relevant for some tablet devices)
 
 
