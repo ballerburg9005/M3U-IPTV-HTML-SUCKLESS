@@ -30,28 +30,27 @@
         }
         @media (orientation: landscape) and (max-height: 600px) {
             .sidebar { width: 50%; min-width: 200px; }
-	    header { padding: 0.5rem 1rem; }
-	    .video-js { height: 80% !important; max-height: 100vh; } /* mobile Chrome thinks 100% means only after you scroll away the URL bar */
+    header { padding: 0.5rem 1rem; }
+    .video-js { height: 80% !important; max-height: 100vh; } /* mobile Chrome thinks 100% means only after you scroll away the URL bar */
             header h5 { font-size: 1rem; }
             .current-channel-display { font-size: 1rem; }
         }
         @media (pointer: coarse) {
             .channel-list { -webkit-overflow-scrolling: touch; }
-	}
-	.video-force-landscape {
-	    position: fixed;
-	    inset: 0;
-	    width: 100vh;
-	    height: 100vw;
-	    transform: rotate(90deg) translateY(-100%);
-	    transform-origin: top left;
-	    background: black;
-	}
-	/* 1000Hz mouse movement CPU bug fixes - still high CPU but not as bad as before */
-	.channel-list { will-change: transform;	transform: translateZ(0); contain: strict; }
-	.channel-text { text-rendering: optimizeSpeed; }
-	body { -webkit-font-smoothing: antialiased; }
-
+}
+.video-force-landscape {
+    position: fixed;
+    inset: 0;
+    width: 100vh;
+    height: 100vw;
+    transform: rotate(90deg) translateY(-100%);
+    transform-origin: top left;
+    background: black;
+}
+/* 1000Hz mouse movement CPU bug fixes - still high CPU but not as bad as before */
+.channel-list { will-change: transform; transform: translateZ(0); contain: strict; }
+.channel-text { text-rendering: optimizeSpeed; }
+body { -webkit-font-smoothing: antialiased; }
     </style>
 </head>
 <body>
@@ -64,7 +63,6 @@
             <p class="mt-3">Or set a default URL in the code.</p>
         </div>
     </div>
-
     <div id="app" style="display: none; flex-direction: column; height: 100vh;">
         <header class="bg-light border-bottom py-2 px-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
             <span id="current-channel" class="current-channel-display text-secondary">—</span>
@@ -74,7 +72,6 @@
                 <button class="btn btn-outline-primary btn-sm" onclick="showUrlModal()">URL...</button>
             </div>
         </header>
-
         <div class="main-row">
             <div class="sidebar">
                 <div class="p-3 border-bottom d-flex gap-2">
@@ -85,7 +82,6 @@
                     <!-- Channels populated here -->
                 </ul>
             </div>
-
             <div class="player-col">
                 <div class="player-container">
                     <video id="video" class="video-js vjs-big-play-centered" controls preload="auto" playsinline></video>
@@ -93,7 +89,6 @@
             </div>
         </div>
     </div>
-
     <div id="url-modal">
         <div class="modal-content">
             <h5 class="mb-3">Enter M3U URL</h5>
@@ -104,27 +99,22 @@
             </div>
         </div>
     </div>
-
     <script>
         const defaultM3uUrl = 'https://iptv-org.github.io/iptv/index.m3u'; // Set your default here or leave empty
-
         const player = videojs('video', {
             liveui: true,
             fluid: true,
-	    aspectRatio: '16:9',
+    aspectRatio: '16:9',
             html5: { vhs: { overrideNative: true } },
             autoplay: true,
             muted: false,
-		  controlBar: { volumePanel: true, qualityMenuButton: true }
-	});
-
-	player.qualityMenu();
+  controlBar: { volumePanel: true, qualityMenuButton: true }
+});
+player.qualityMenu();
         player.ready(function() {
         });
-
         let channels = [];
         let currentItem = null;
-
         async function parseM3U(content) {
             const lines = content.split('\n');
             const parsed = [];
@@ -146,7 +136,6 @@
             }
             return parsed;
         }
-
         async function loadM3U(source) {
             try {
                 let content;
@@ -168,13 +157,23 @@
                     return;
                 }
                 renderChannels();
-                const firstLi = document.querySelector('.list-group-item');
-                if (firstLi) playChannel(channels[0].url, firstLi, channels[0].name, 0);
+                let channelIndex = 0;
+                const urlParams = new URLSearchParams(window.location.search);
+                const param = urlParams.get('channel') || urlParams.get('c');
+                if (param) {
+                    const num = parseInt(param, 10) - 1; // Convert to 0-based index
+                    if (!isNaN(num) && num >= 0 && num < channels.length) {
+                        channelIndex = num;
+                    }
+                }
+                const li = document.querySelectorAll('.list-group-item')[channelIndex];
+                if (li) {
+                    playChannel(channels[channelIndex].url, li, channels[channelIndex].name, channelIndex);
+                }
             } catch (e) {
                 alert('Error: ' + e.message);
             }
         }
-
         function renderChannels() {
             const list = document.getElementById('channel-list');
             list.innerHTML = '';
@@ -182,13 +181,11 @@
                 const li = document.createElement('li');
                 li.className = `list-group-item list-group-item-action ${i === 0 ? 'active' : ''}`;
                 li.onclick = () => playChannel(ch.url, li, ch.name, i);
-
                 const span = document.createElement('span');
                 span.className = 'channel-text';
                 span.textContent = `${i + 1}. ${ch.name}`;
                 span.title = ch.name; // Static tooltip – no JS overhead
                 li.appendChild(span);
-
                 if (ch.logo) {
                     const img = document.createElement('img');
                     img.src = ch.logo;
@@ -198,23 +195,19 @@
                     img.onerror = () => img.remove();
                     li.appendChild(img);
                 }
-
                 list.appendChild(li);
             });
         }
-
         function playChannel(url, el, name, idx) {
             if (currentItem) currentItem.classList.remove('active');
             el.classList.add('active');
             currentItem = el;
             document.getElementById('current-channel').textContent = `${idx + 1}. ${name}`;
-
             player.src({ type: 'application/x-mpegURL', src: url });
             player.muted(false);
             player.volume(1);
             player.play().catch(() => {});
         }
-
         function filterChannels() {
             const val = document.getElementById('search').value.toLowerCase();
             document.querySelectorAll('.list-group-item').forEach(item => {
@@ -222,9 +215,7 @@
                 item.style.display = text.includes(val) ? '' : 'none';
             });
         }
-
         const debouncedFilterChannels = debounce(filterChannels, 300);
-
         function debounce(fn, delay) {
             let t;
             return () => {
@@ -232,25 +223,21 @@
                 t = setTimeout(fn, delay);
             };
         }
-
-	function scrollToActive() {
-	    if (!currentItem) return;
-	    const list = document.querySelector('.channel-list');
-	    const listRect = list.getBoundingClientRect();
-	    const itemRect = currentItem.getBoundingClientRect();
-	    list.scrollTop += (itemRect.top + itemRect.height / 2) - (listRect.top + listRect.height / 2);
-	}
-
-	function showUrlModal() {
+function scrollToActive() {
+    if (!currentItem) return;
+    const list = document.querySelector('.channel-list');
+    const listRect = list.getBoundingClientRect();
+    const itemRect = currentItem.getBoundingClientRect();
+    list.scrollTop += (itemRect.top + itemRect.height / 2) - (listRect.top + listRect.height / 2);
+}
+function showUrlModal() {
             document.getElementById('url-modal').style.display = 'flex';
             document.getElementById('modal-url').focus();
         }
-
         function hideUrlModal() {
             document.getElementById('url-modal').style.display = 'none';
             document.getElementById('modal-url').value = '';
         }
-
         function loadFromModalUrl() {
             const url = document.getElementById('modal-url').value.trim();
             if (url) {
@@ -258,7 +245,6 @@
                 hideUrlModal();
             }
         }
-
         function loadFromInitialUrl() {
             const url = document.getElementById('initial-url').value.trim();
             if (url) {
@@ -267,7 +253,6 @@
                 document.getElementById('app').style.display = 'flex';
             }
         }
-
         // Init
         document.getElementById('initial-upload').addEventListener('change', e => {
             if (e.target.files[0]) {
@@ -276,11 +261,9 @@
                 document.getElementById('app').style.display = 'flex';
             }
         });
-
         document.getElementById('mini-upload').addEventListener('change', e => {
             if (e.target.files[0]) loadM3U(e.target.files[0]);
         });
-
         if (defaultM3uUrl) {
             loadM3U(defaultM3uUrl);
             document.getElementById('app').style.display = 'flex';
@@ -288,19 +271,17 @@
         } else {
             document.getElementById('initial-form').style.display = 'flex';
             document.getElementById('app').style.display = 'none';
-	}
-
-	function isMobileTallScreen() {
-	    if (!matchMedia('(pointer: coarse)').matches) return false;
-	    if (matchMedia('(hover: hover)').matches) return false;
-	    const ratio = Math.min(screen.width, screen.height) / Math.max(screen.width, screen.height);
-	    return ratio < 1.0 && window.innerHeight > window.innerWidth;
-	}
-
-	document.addEventListener('fullscreenchange', () => {
-	    if (!document.fullscreenElement) { video.classList.remove('video-force-landscape'); return; }
-	    if (isMobileTallScreen()) { video.classList.add('video-force-landscape'); }
-	});
+}
+function isMobileTallScreen() {
+    if (!matchMedia('(pointer: coarse)').matches) return false;
+    if (matchMedia('(hover: hover)').matches) return false;
+    const ratio = Math.min(screen.width, screen.height) / Math.max(screen.width, screen.height);
+    return ratio < 1.0 && window.innerHeight > window.innerWidth;
+}
+document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) { video.classList.remove('video-force-landscape'); return; }
+    if (isMobileTallScreen()) { video.classList.add('video-force-landscape'); }
+});
     </script>
 </body>
 </html>
