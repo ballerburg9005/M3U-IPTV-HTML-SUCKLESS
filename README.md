@@ -4,9 +4,9 @@ You would think that an IPTV web player is a simple thing. Just a HTML video ele
 
 Yes it is that simple. But if you look at other projects like IPTVnator, the repo downloads 900MB (!), it is written in Angular (enterprise garbage), pulls a gazillion NPM dependencies, takes 30 minutes to set up for necessary non-standard "no npm" dev workflow, 3 minutes to compile, and has the worst of all stereotypical "100 full-time employees can't add a simple view counter below Twitter posts in 5 years" sickness of such frameworks. Even AI couldn't deal with it, because the codebase is so massive and Angular is just so retarded that it can't produce intelligible code for it. Then some players need Node JS servers, some need this and that, playlists are strictly access-controlled inside hard user/session isolation, needs backend server, docker-ized containers, Ruby x86 blobs make it impossible to run on Ampere/ARM server ... Why? Some players might be simpler, but they are also pretty basic - not unlike what you get from ChatGPT on first try. Then also even the most sophisticated IPTV projects don't really support mobile views and rotated screens, or not at all. And some have huge clunks.
 
-Anyway... I hope this rambling spares you the Odyssee of trying to identify the right IPTV player.
+Anyway... I hope this rambling spares you the Odyssee of trying to identify the "right" IPTV player.
 
-Put this player on *any* webserver, supply your playlist and it just plays *instantly*.
+Put this player on *any* webserver, supply your playlist and it just plays *instantly* for *anyone*.
 
 Why all this nonsense with the other projects?
 
