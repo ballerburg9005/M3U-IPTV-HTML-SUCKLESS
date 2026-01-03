@@ -26,6 +26,7 @@ Why all this nonsense with the other projects?
 * subtitles, audio tracks, quality selection, skipback, normal video controls
 * "find back" button to scroll channel list to current channel
 * use ?c=123 or ?channel=123 to select channel via URL
+* channel share button for Android / clipboard button for PC
 
 
 ## Screenshots (PC & Mobile)
