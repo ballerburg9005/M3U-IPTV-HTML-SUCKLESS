@@ -14,7 +14,7 @@ Why all this nonsense with the other projects?
 
 [https://ballerburg9005.github.io/M3U-IPTV-HTML-SUCKLESS/](https://ballerburg9005.github.io/M3U-IPTV-HTML-SUCKLESS/)
 
-**WARNING: You can't load from URL in the Demo, due to Github Server CORS restrictions.**
+**Beware of CORS when supplying URL, remote server must have Access-Control-Allow-Origin: * set.**
 
 ## Features
 
