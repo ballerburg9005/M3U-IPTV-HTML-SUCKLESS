@@ -22,6 +22,7 @@
         .channel-logo { height: 28px; width: auto; flex-shrink: 0; }
         #url-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1050; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; }
+	#mini-upload { z-index: 5; }
         header { position: relative; }
         .header-title { position: absolute; left: 50%; transform: translateX(-50%); z-index: 1; }
         @media (max-width: 576px) {
@@ -62,7 +63,7 @@
 </head>
 <body>
     <div id="initial-form" class="d-flex flex-column justify-content-center align-items-center vh-100" style="display: none !important;">
-        <h1 style="font-size: 3rem; margin-bottom: 2rem;"><a href="https://example.com" style="color: inherit; text-decoration: none;">M3U-IPTV HTML SUCKLESS</a></h1>
+        <h1 style="font-size: 3rem; margin-bottom: 2rem;"><a href="https://github.com/ballerburg9005/M3U-IPTV-HTML-SUCKLESS" style="color: inherit; text-decoration: none;">M3U-IPTV HTML SUCKLESS</a></h1>
         <div class="text-center w-75">
             <input type="file" id="initial-upload" accept=".m3u,.m3u8" class="form-control form-control-lg mb-3">
             <input type="text" id="initial-url" placeholder="Enter M3U URL" class="form-control form-control-lg mb-3">
@@ -73,7 +74,7 @@
     <div id="app" style="display: none; flex-direction: column; height: 100vh;">
         <header class="bg-light border-bottom py-2 px-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
             <span id="current-channel" class="current-channel-display text-secondary">—</span>
-            <h5 class="mb-0 text-center flex-grow-1 header-title"><a href="https://example.com" style="text-decoration: none; color: inherit;">M3U-IPTV HTML SUCKLESS</a></h5>
+            <h5 class="mb-0 text-center flex-grow-1 header-title"><a href="https://github.com/ballerburg9005/M3U-IPTV-HTML-SUCKLESS" style="text-decoration: none; color: inherit;">M3U-IPTV HTML SUCKLESS</a></h5>
             <div class="d-flex align-items-center gap-2">
                 <input type="file" id="mini-upload" accept=".m3u,.m3u8" class="form-control form-control-sm">
                 <button class="btn btn-outline-primary btn-sm" onclick="showUrlModal()">URL...</button>
@@ -107,7 +108,7 @@
             </div>
         </div>
     </div>
-    <div id="notification" class="position-fixed bg-success text-white p-3 rounded shadow" style="display: none; z-index: 1060; top: 20px; left: 50%; transform: translateX(-50%); font-size: 1.4rem;">Copied channel URL to clipboard</div>
+    <div id="notification" class="position-fixed bg-success text-white p-3 rounded shadow" style="display: none; z-index: 1060; top: 20px; left: 50%; transform: translateX(-50%); font-size: 1.4rem;">Copied channel URL to clipboard!</div>
     <script>
         const defaultM3uUrl = 'https://iptv-org.github.io/iptv/index.m3u'; // Set your default here or leave empty
         const player = videojs('video', {
