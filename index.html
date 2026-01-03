@@ -294,7 +294,7 @@
 	    if (!matchMedia('(pointer: coarse)').matches) return false;
 	    if (matchMedia('(hover: hover)').matches) return false;
 	    const ratio = Math.min(screen.width, screen.height) / Math.max(screen.width, screen.height);
-	    return ratio < 0.75 && window.innerHeight > window.innerWidth;
+	    return ratio < 0.8 && window.innerHeight > window.innerWidth;
 	}
 
 	document.addEventListener('fullscreenchange', () => {
