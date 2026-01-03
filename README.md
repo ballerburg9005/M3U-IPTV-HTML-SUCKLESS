@@ -10,6 +10,11 @@ Put this player on *any* webserver, supply your playlist and it just plays *inst
 
 Why all this nonsense with the other projects?
 
+## Demo
+
+[https://ballerburg9005.github.io/M3U-IPTV-HTML-SUCKLESS/](https://ballerburg9005.github.io/M3U-IPTV-HTML-SUCKLESS/)
+
+**WARNING: You can't load from URL in the Demo, due to Github Server CORS restrictions.**
 
 ## Features
 
