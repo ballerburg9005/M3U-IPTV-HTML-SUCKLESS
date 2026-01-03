@@ -6,6 +6,10 @@ Yes it is that simple. But if you look at other projects like IPTVnator, the rep
 
 Anyway... I hope this rambling spares you the Odyssee of trying to identify the right IPTV player.
 
+Put this player on *any* webserver, supply your playlist and it just plays *instantly*.
+
+Why all this nonsense with the other projects?
+
 ## Features
 
 * pure HTML/JS single file 300 lines of code
