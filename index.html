@@ -16,7 +16,7 @@
         .player-col { background-color: black; flex: 1; order: 2; position: relative; }
         .player-container { position: absolute; inset: 0; }
         .video-js { width: 100% !important; height: 100% !important; }
-        .sidebar { background-color: #fff; display: flex; flex-direction: column; resize: horizontal; overflow: hidden; min-width: 200px; max-width: 50vw; width: 25%; order: 1; }
+        .sidebar { background-color: #fff; display: flex; flex-direction: column; overflow: hidden; min-width: 200px; max-width: 50vw; width: 25%; order: 1; }
         .channel-list { flex: 1; overflow-y: auto; overflow-x: hidden; }
         .list-group-item { border-radius: 0; border: none; border-bottom: 1px solid #dee2e6; padding: 0.75rem 1.25rem; white-space: nowrap; }
         .channel-text { flex: 1; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
@@ -26,9 +26,8 @@
         @media (max-aspect-ratio: 3/4) {
             .main-row { flex-direction: column; }
             .player-col { height: 40vh; order: 1; }
-            .sidebar { width: 100%; max-width: 100%; min-width: 0; height: calc(100% - 40vh); resize: vertical; order: 2; }
+            .sidebar { width: 100%; max-width: 100%; min-width: 0; height: calc(100% - 40vh); order: 2; }
             .list-group-item { font-size: 1.2rem; padding: 1rem; }
-            .sidebar { resize: none; }
         }
         @media (orientation: landscape) and (max-height: 600px) {
             .sidebar { width: 50%; min-width: 200px; }
