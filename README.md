@@ -33,6 +33,7 @@ Why all this nonsense with the other projects?
 
 ![Image](https://github.com/user-attachments/assets/fc28bc63-f4c6-4a1d-a9d6-78470f3831db)
 
+**Some Improvements were made since then.*
 
 ## Known Issues
 
